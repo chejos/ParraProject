@@ -26,9 +26,9 @@ public class OrderedDither {
 				gray = grayLevel + (grayLevel * matrix[x % 4][y % 4]) / 17;
 
 				if (gray < threshold) {
-					gray = 0;
+					gray = 0x0;
 				} else {
-					gray = 16777215;
+					gray = 0xFFFFFF;
 					// gray = 255;
 				}
 
