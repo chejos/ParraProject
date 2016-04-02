@@ -18,6 +18,7 @@ public class Main {
 		// Turn the byte array into a BufferedImage
 		// Filename ändern....
 		BufferedImage sourceImg = ImageIO.read(new File(PATH + SOURCE));
+		BufferedImage resultImg;
 
 		// sourceImg = makeGrayBuffered(sourceImg);
 		// sourceImg = makeGray(sourceImg);
@@ -29,11 +30,10 @@ public class Main {
 		 */
 
 		// Ordered Dither
-		OrderedDither imageDither = new OrderedDither();
-		sourceImg = imageDither.createBinaryPicture(sourceImg);
+		resultImg = new OrderedDither().createBinaryPicture(sourceImg);
 
 		// Output
-		ImageIO.write(sourceImg, "jpg", new File(PATH + RESULTNAME + "." + RESULTTYPE));
+		ImageIO.write(resultImg, RESULTTYPE, new File(PATH + RESULTNAME + "." + RESULTTYPE));
 
 		System.out.println("Programm ended");
 
