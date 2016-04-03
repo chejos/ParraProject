@@ -7,12 +7,16 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-public class Main {
 
+public class Main {
+	
+	static final int threshold = 128;
+	
+	
 	public static void main(String[] args) throws IOException {
 		final String PATH = "src/main/resources/";
-		final String SOURCE = "example.jpg";
-		final String RESULTNAME = "exampleResult";
+		final String SOURCE = "Beispiel.jpg";
+		final String RESULTNAME = "BeispielResult";
 		final String RESULTTYPE = "jpg";
 
 		// Turn the byte array into a BufferedImage
@@ -25,12 +29,17 @@ public class Main {
 
 		// BinaryPicture
 		/*
-		 * BinaryPicture ozu = new BinaryPicture(); sourceImg =
-		 * ozu.createBinaryPicture(sourceImg);
+		 * sourceImg = = new BinaryPicture().createBinaryPicture(sourceImg);
+		 * 
 		 */
 
+		
 		// Ordered Dither
-		resultImg = new OrderedDither().createBinaryPicture(sourceImg);
+		//resultImg = new OrderedDither().createBinaryPicture(sourceImg);
+		
+		//Floyd-Steinberg
+		resultImg = new FloydSteinberg(threshold).createBinaryPicture(sourceImg);
+		
 
 		// Output
 		ImageIO.write(resultImg, RESULTTYPE, new File(PATH + RESULTNAME + "." + RESULTTYPE));

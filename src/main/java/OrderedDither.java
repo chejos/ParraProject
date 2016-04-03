@@ -29,7 +29,7 @@ public class OrderedDither {
 					gray = 0x0;
 				} else {
 					gray = 0xFFFFFF;
-					// gray = 255;
+					
 				}
 
 				// gray = (gray << 16) + (gray << 8) + gray;
