@@ -25,7 +25,7 @@ public class Main {
 		BufferedImage resultImg;
 
 		// sourceImg = makeGrayBuffered(sourceImg);
-		// sourceImg = makeGray(sourceImg);
+		sourceImg = makeGray(sourceImg);
 
 		// BinaryPicture
 		/*
