@@ -22,8 +22,8 @@ public class FloydSteinberg {
 		float w3 = (float) (5.0 / 16);
 		float w4 = (float) (1.0 / 16);
 
-		for (int x = 0; x < imageWidth; ++x) {
-			for (int y = 0; y < imageHeight; ++y) {
+		for (int y = 0; y < imageHeight; y++) {
+			for (int x = 0; x < imageWidth; x++) {
 
 				int rgb = sourceImg.getRGB(x, y);
 				int r = (rgb >> 16) & 0xFF;
@@ -37,7 +37,6 @@ public class FloydSteinberg {
 					gray = 0x0;
 				} else {
 					gray = 0xFFFFFF;
-
 				}
 				sourceImg.setRGB(x, y, gray);
 
@@ -45,28 +44,31 @@ public class FloydSteinberg {
 				// PseudoCode von
 				// https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering
 				grayLevelOldPixel = (grayLevelOldPixel << 16) + (grayLevelOldPixel << 8) + grayLevelOldPixel;
-				
+
 				quant_error = grayLevelOldPixel - gray;
 				
-				
-				if (x + 1 < imageWidth) {
-					sourceImg.setRGB(x + 1, y, (int) (sourceImg.getRGB(x + 1, y) + w1 * quant_error));
+				int xRight = x + 1;
+				int xLeft = x - 1;
+				int yDown = y + 1;
+
+				if (xRight < imageWidth) {
+					sourceImg.setRGB(xRight, y, (int) (sourceImg.getRGB(xRight, y) + w1 * quant_error));
 				}
-				if (y + 1 < imageHeight) {
-					//Pixel links unten
-					if (x - 1 > 0) {
-						sourceImg.setRGB(x - 1, y + 1, (int) (sourceImg.getRGB(x - 1, y + 1) + w2 * quant_error));
+				if (yDown < imageHeight) {
+
+					// Pixel links unten
+					if (xLeft > 0) {
+						sourceImg.setRGB(xLeft, yDown, (int) (sourceImg.getRGB(xLeft, yDown) + w2 * quant_error));
 					}
 
-					//Pixel unten 
-					sourceImg.setRGB(x, y + 1, (int) (sourceImg.getRGB(x, y + 1) + w3 * quant_error));
+					// Pixel unten
+					sourceImg.setRGB(x, yDown, (int) (sourceImg.getRGB(x, yDown) + w3 * quant_error));
 
-					//Pixel rechts unten
-					if (x + 1 < imageWidth) {
-						sourceImg.setRGB(x + 1, y + 1, (int) (sourceImg.getRGB(x + 1, y + 1) + w4 * quant_error));
+					// Pixel rechts unten
+					if (xRight < imageWidth) {
+						sourceImg.setRGB(xRight, yDown, (int) (sourceImg.getRGB(xRight, yDown) + w4 * quant_error));
 					}
 				}
-				
 			}
 		}
 		return sourceImg;
