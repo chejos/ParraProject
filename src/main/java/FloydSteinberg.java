@@ -1,5 +1,7 @@
 import java.awt.image.BufferedImage;
 
+import javax.xml.namespace.QName;
+
 public class FloydSteinberg {
 
 	final int threshold;
@@ -17,11 +19,14 @@ public class FloydSteinberg {
 		int imageWidth = sourceImg.getWidth();
 		int imageHeight = sourceImg.getHeight();
 
-		float w1 = (float) (7.0 / 16);
-		float w2 = (float) (3.0 / 16);
-		float w3 = (float) (5.0 / 16);
-		float w4 = (float) (1.0 / 16);
+		double w1 = (7.0 / 16.0);
+		double w2 = (3.0 / 16.0);
+		double w3 = (5.0 / 16.0);
+		double w4 = (1.0 / 16.0);
 
+		int gr_null = 0;
+		int kl_null = 0;
+		
 		for (int y = 0; y < imageHeight; y++) {
 			for (int x = 0; x < imageWidth; x++) {
 
@@ -35,42 +40,108 @@ public class FloydSteinberg {
 				// Entscheide ob Pixel Weiß oder Schwarz
 				if (grayLevelOldPixel < threshold) {
 					gray = 0x0;
+					grayLevelOldPixel = (r + g + b) / 3;
 				} else {
 					gray = 0xFFFFFF;
+					grayLevelOldPixel = (r + g + b) / 3 - 0xFF;
 				}
 				sourceImg.setRGB(x, y, gray);
 
 				// Floy-Steinberg Fehlerverteilung
 				// PseudoCode von
 				// https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering
+				
+				int temp = grayLevelOldPixel;
 				grayLevelOldPixel = (grayLevelOldPixel << 16) + (grayLevelOldPixel << 8) + grayLevelOldPixel;
-
-				quant_error = grayLevelOldPixel - gray;
 				
 				int xRight = x + 1;
 				int xLeft = x - 1;
 				int yDown = y + 1;
 
 				if (xRight < imageWidth) {
-					sourceImg.setRGB(xRight, y, (int) (sourceImg.getRGB(xRight, y) + w1 * quant_error));
+					rgb = sourceImg.getRGB(xRight, y);
+					r = (rgb >> 16) & 0xFF;
+					g = (rgb >> 8) & 0xFF;
+					b = (rgb & 0xFF);
+					
+					r = (int) (r + w1 * temp);
+					g = (int) (g + w1 * temp);
+					b = (int) (b + w1 * temp);
+					
+					rgb = (r + g + b) / 3;
+					rgb = (rgb << 16) + (rgb << 8) + rgb;
+					
+					sourceImg.setRGB(xRight, y, rgb);
 				}
 				if (yDown < imageHeight) {
 
 					// Pixel links unten
 					if (xLeft > 0) {
-						sourceImg.setRGB(xLeft, yDown, (int) (sourceImg.getRGB(xLeft, yDown) + w2 * quant_error));
+
+						rgb = sourceImg.getRGB(xLeft, yDown);
+						r = (rgb >> 16) & 0xFF;
+						g = (rgb >> 8) & 0xFF;
+						b = (rgb & 0xFF);
+						
+						r = (int) (r + w2 * temp);
+						g = (int) (g + w2 * temp);
+						b = (int) (b + w2 * temp);
+						
+						rgb = (r + g + b) / 3;
+						rgb = (rgb << 16) + (rgb << 8) + rgb;
+						
+						sourceImg.setRGB(xLeft, yDown, rgb);
 					}
 
 					// Pixel unten
-					sourceImg.setRGB(x, yDown, (int) (sourceImg.getRGB(x, yDown) + w3 * quant_error));
+
+					rgb = sourceImg.getRGB(x, yDown);
+					r = (rgb >> 16) & 0xFF;
+					g = (rgb >> 8) & 0xFF;
+					b = (rgb & 0xFF);
+					
+					r = (int) (r + w3 * temp);
+					g = (int) (g + w3 * temp);
+					b = (int) (b + w3 * temp);
+					
+					rgb = (r + g + b) / 3;
+					rgb = (rgb << 16) + (rgb << 8) + rgb;
+					sourceImg.setRGB(x, yDown, rgb);
 
 					// Pixel rechts unten
 					if (xRight < imageWidth) {
-						sourceImg.setRGB(xRight, yDown, (int) (sourceImg.getRGB(xRight, yDown) + w4 * quant_error));
+						rgb = sourceImg.getRGB(xRight, yDown);
+						r = (rgb >> 16) & 0xFF;
+						g = (rgb >> 8) & 0xFF;
+						b = (rgb & 0xFF);
+						
+
+//						System.out.println(r);
+//						System.out.println(g);
+//						System.out.println(b);
+//
+//						System.out.println("rgb1: " + Integer.toHexString(rgb));
+						
+						r = (int) (r + w4 * temp);
+						g = (int) (g + w4 * temp);
+						b = (int) (b + w4 * temp);
+						
+
+//						System.out.println(r);
+//						System.out.println(g);
+//						System.out.println(b);
+						
+						rgb = (r + g + b) / 3;
+						rgb = (rgb << 16) + (rgb << 8) + rgb;
+						
+//						System.out.println("rgb: " + Integer.toHexString(rgb));
+						sourceImg.setRGB(xRight, yDown, rgb);						
 					}
 				}
 			}
 		}
+		System.out.println("größer:" + gr_null);
+		System.out.println("kleiner: " + kl_null);
 		return sourceImg;
 	}
 
