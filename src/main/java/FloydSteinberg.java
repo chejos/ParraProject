@@ -1,11 +1,23 @@
+import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.SynchronousQueue;
 
 public class FloydSteinberg {
 
 	final int threshold;
+	final int[][] errorDistribution;
+
+	public FloydSteinberg(int threshold, int[][] errorDistribution) {
+		this.threshold = threshold;
+		this.errorDistribution = errorDistribution;
+	}
 
 	public FloydSteinberg(int threshold) {
-		this.threshold = threshold;
+		this(128, new int[][] { { 0, 0, 7 }, { 3, 5, 1 } });
+	}
+
+	public FloydSteinberg() {
+		this(128);
 	}
 
 	// Hat noch Fehler
@@ -14,19 +26,34 @@ public class FloydSteinberg {
 		int grayLevelOldPixel = 0;
 		int imageWidth = sourceImg.getWidth();
 		int imageHeight = sourceImg.getHeight();
+		int errorSum = 0;
+		int start = -1;
+		//
+		// float[][] grades = {{8.0, 7.5, 8.5, 9.0, 8.0}, {8.9, 9.0, 8.6, 8.4,
+		// 8.0}, {6.8, 7.1, 7.0, 7.6, 6.5}};
 
-		double w1 = (7.0 / 16.0);
-		double w2 = (3.0 / 16.0);
-		double w3 = (5.0 / 16.0);
-		double w4 = (1.0 / 16.0);
+		for (int[] line : errorDistribution) {
+			boolean started = false;
+			for (int ed : line) {
+				errorSum += ed;
+				if (started == false) {
+					if (ed == 0) {
+						start++;
+					} else {
+						started = true;
+					}
+				}
+			}
+		}
 
+		System.out.println(start);
 		for (int y = 0; y < imageHeight; y++) {
 			for (int x = 0; x < imageWidth; x++) {
 
 				// rgbValues: { rgb, r, g, b }
 				int[] rgbValues = getRGB(sourceImg, x, y);
 
-				grayLevelOldPixel = (rgbValues[1] + rgbValues[2] + rgbValues[3]) / 3;
+				grayLevelOldPixel = rgbValues[0];
 
 				// Entscheide ob Pixel Weiß oder Schwarz
 				if (grayLevelOldPixel < threshold) {
@@ -40,37 +67,21 @@ public class FloydSteinberg {
 				// PseudoCode von
 				// https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering
 
-				int xRight = x + 1;
-				int xLeft = x - 1;
-				int yDown = y + 1;
 				int newRGBValue;
+				for (int yMatrix = 0; yMatrix < errorDistribution.length; yMatrix++) {
+					int yWokringPixel = y + yMatrix;
+					if (yWokringPixel < imageHeight) {
+						for (int xMatrix = 0; xMatrix < errorDistribution[yMatrix].length; xMatrix++) {
+							int xWorkingPixel = xMatrix - start + x;
+							if (xWorkingPixel >= 0 && xWorkingPixel < imageWidth) {
+								double distributionDivideSum = (double) errorDistribution[yMatrix][xMatrix]
+										/ (double) errorSum;
 
-				// Pixel rechts daneben
-				if (xRight < imageWidth) {
-					rgbValues = this.getRGB(sourceImg, xRight, y);
-					newRGBValue = coloursMultiplyError(rgbValues, grayLevelOldPixel, w1);
-					sourceImg.setRGB(xRight, y, newRGBValue);
-				}
-				
-				// zweite Reihe
-				if (yDown < imageHeight) {
-					// Pixel links unten
-					if (xLeft > 0) {
-						rgbValues = this.getRGB(sourceImg, xLeft, yDown);
-						newRGBValue = coloursMultiplyError(rgbValues, grayLevelOldPixel, w2);
-						sourceImg.setRGB(xLeft, yDown, newRGBValue);
-					}
-
-					// Pixel darunter
-					rgbValues = this.getRGB(sourceImg, x, yDown);
-					newRGBValue = coloursMultiplyError(rgbValues, grayLevelOldPixel, w3);
-					sourceImg.setRGB(x, yDown, newRGBValue);
-
-					// Pixel rechts unten
-					if (xRight < imageWidth) {
-						rgbValues = this.getRGB(sourceImg, xRight, yDown);
-						newRGBValue = coloursMultiplyError(rgbValues, grayLevelOldPixel, w4);
-						sourceImg.setRGB(xRight, yDown, newRGBValue);
+								rgbValues = this.getRGB(sourceImg, xWorkingPixel, yWokringPixel);
+								newRGBValue = coloursMultiplyError(rgbValues, grayLevelOldPixel, distributionDivideSum);
+								sourceImg.setRGB(xWorkingPixel, yWokringPixel, newRGBValue);
+							}
+						}
 					}
 				}
 			}
@@ -79,21 +90,30 @@ public class FloydSteinberg {
 	}
 
 	private int[] getRGB(BufferedImage img, int x, int y) {
-		int rgb = img.getRGB(x, y);
-		int r = (rgb >> 16) & 0xFF;
-		int g = (rgb >> 8) & 0xFF;
-		int b = (rgb & 0xFF);
+		int[] rgb = img.getRaster().getPixel(x, y, new int[3]);
+		int rgbAverage = (rgb[0] + rgb[1] + rgb[2]) / 3;
+		return new int[] { rgbAverage, rgb[0], rgb[1], rgb[2] };
 
-		return new int[] { rgb, r, g, b };
+		// int rgb = img.getRGB(x, y);
+		// int r = (rgb >> 16) & 0xFF;
+		// int g = (rgb >> 8) & 0xFF;
+		// int b = (rgb & 0xFF);
+		//
+		// return new int[] { rgb, r, g, b };
 	}
 
 	private int coloursMultiplyError(int[] rgbValues, int error, double matrixValue) {
-		int r = (int) (rgbValues[1] + matrixValue * error);
-		int g = (int) (rgbValues[2] + matrixValue * error);
-		int b = (int) (rgbValues[3] + matrixValue * error);
-		int rgb = (r + g + b) / 3;
+		int ErrorMultipyMatrix = (int) (matrixValue * error);
 
-		return (rgb << 16) + (rgb << 8) + rgb;
+		// int r = Math.min(Math.max(rgbValues[1] + ErrorMultipyMatrix, 0),
+		// 255);
+		// int g = Math.min(Math.max(rgbValues[2] + ErrorMultipyMatrix, 0),
+		// 255);
+		// int b = Math.min(Math.max(rgbValues[3] + ErrorMultipyMatrix, 0),
+		// 255);
+		// return new Color(r, g, b).getRGB();
+
+		int newRGB = Math.min(Math.max(rgbValues[0] + ErrorMultipyMatrix, 0), 255);
+		return (newRGB << 16) + (newRGB << 8) + newRGB;
 	}
-
 }

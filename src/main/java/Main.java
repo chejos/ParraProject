@@ -16,7 +16,7 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		final String PATH = "src/main/resources/";
 		final String SOURCE = "Beispiel.jpg";
-		final String RESULTNAME = "BeispielResult";
+		final String RESULTNAME = "beispielResult";
 		final String RESULTTYPE = "jpg";
 
 		// Turn the byte array into a BufferedImage
@@ -24,6 +24,9 @@ public class Main {
 		BufferedImage sourceImg = ImageIO.read(new File(PATH + SOURCE));
 		BufferedImage resultImg;
 
+		int[][] example2 = {{0, 0, 4, 1}, {1, 4, 1, 0}, {0, 1, 0, 0}};
+		int[][] example3 = {{0, 0, 0, 8, 4}, {2, 4, 8, 4, 2}, {1, 2, 4, 2, 1}};
+		
 		// sourceImg = makeGrayBuffered(sourceImg);
 		//sourceImg = makeGray(sourceImg);
 
@@ -38,11 +41,11 @@ public class Main {
 		//resultImg = new OrderedDither().createBinaryPicture(sourceImg);
 		
 		//Floyd-Steinberg
+//		resultImg = new FloydSteinberg(threshold, example3).createBinaryPicture(sourceImg);
 		resultImg = new FloydSteinberg(threshold).createBinaryPicture(sourceImg);
-		
 
 		// Output
-		ImageIO.write(resultImg, RESULTTYPE, new File(PATH + RESULTNAME + "." + RESULTTYPE));
+		ImageIO.write(resultImg, RESULTTYPE, new File(PATH + RESULTNAME + "_example1" + "." + RESULTTYPE));
 
 		System.out.println("Programm ended");
 
