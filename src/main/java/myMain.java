@@ -10,6 +10,14 @@ public class myMain {
 	// Bild-Datei-Verwaltung, Abfrage der zu verwendeten Matrix und Entscheidung
 	// parallel/sec in der Main
 	public static void main(String[] args) throws IOException {
+		
+		System.out.println("todo: Objektnamen sollen mit einem gro√üen Buchstaben beginnen");
+		System.out.println("todo: (String?) Konstanten ausfindig machen, diese Gro√ü schreiben und mit final versehen");
+		System.out.println("todo: type filename?, threadcounter, mode, matrix and threshold");
+		System.out.println("todo: tests");
+		System.out.println("todo: Kommentare/Dokumentation!!!");
+		System.out.println("todo - sobald alles andere l√§uft: l√∂sche thread counter aus der Main und den anderen Objekten");
+		
 		final String PATH = "src/main/resources/";
 		final String SOURCE = "example.jpg";
 		final String RESULTTYPE = "png";
@@ -29,9 +37,7 @@ public class myMain {
 		int mode = 0;
 		int threshold = 128;
 		matrix myMatrix = null;
-		System.out.println("todo: lˆsche thread counter");
-		System.out.println("type mode, matrix and threshold - todo!! -");
-
+		
 		switch (mode) {
 		case (1):
 			myMatrix = new matrix(new int[][] { { 0, 0, 4, 1 }, { 1, 4, 1, 0 }, { 0, 1, 0, 0 } }, threshold);
@@ -59,8 +65,8 @@ public class myMain {
 		final long startTime = System.currentTimeMillis();
 
 		try {
-			// maxThreads zur Info, kann (soll!) sp‰ter gelˆscht werden - auch
-			// in den Objekten f¸r die Paralelleverarveitung
+			// maxThreads zur Info, kann (soll!) sp√§ter gel√∂scht werden - auch
+			// in den Objekten f√ºr die Paralelleverarveitung
 			int maxThreads = 0;
 			if (parallel) {
 
