@@ -2,8 +2,8 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 /**
- * Implementierung und Testen eines Binary Pictures mithilfe der Methode von Otsu 
- * https://en.wikipedia.org/wiki/Otsu%27s_method
+ * Implementierung und Testen eines Binary Pictures mithilfe der Methode von
+ * Otsu https://en.wikipedia.org/wiki/Otsu%27s_method
  * 
  * @author Hollow
  *
@@ -23,7 +23,8 @@ public class BinaryPicture {
 	}
 
 	/**
-	 * Histogramm erzeugen 
+	 * Histogramm erzeugen
+	 * 
 	 * @param input
 	 * @return
 	 */
@@ -47,6 +48,7 @@ public class BinaryPicture {
 
 	/**
 	 * Pixel umwandeln von Color zu Gray
+	 * 
 	 * @param original
 	 * @return
 	 */
@@ -82,6 +84,7 @@ public class BinaryPicture {
 
 	/**
 	 * Berechne den Treshold mithilfe der Methode von Otsu
+	 * 
 	 * @param original
 	 * @return
 	 */
@@ -128,6 +131,7 @@ public class BinaryPicture {
 
 	/**
 	 * Entscheide ob Pixel Schwarz oder Weiﬂ ist. binarize
+	 * 
 	 * @param original
 	 * @return
 	 */
@@ -162,8 +166,9 @@ public class BinaryPicture {
 	}
 
 	/**
-	 * Konvertierung von R,G,B,Alpha nach Standard 8-bit
-	 * Convert R, G, B, Alpha to standard 8 bit
+	 * Konvertierung von R,G,B,Alpha nach Standard 8-bit Convert R, G, B, Alpha
+	 * to standard 8 bit
+	 * 
 	 * @param alpha
 	 * @param red
 	 * @param green

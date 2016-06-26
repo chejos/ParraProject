@@ -10,7 +10,6 @@ import java.awt.color.ColorSpace;
 import javax.imageio.ImageIO;
 
 public class myMain {
-
 	// Bild-Datei-Verwaltung, Abfrage der zu verwendeten Matrix und Entscheidung
 	// parallel/sec in der Main
 	public static void main(String[] args) throws IOException {
@@ -20,11 +19,15 @@ public class myMain {
 		System.out.println("todo: type filename?, threadcounter, mode, matrix and threshold");
 		System.out.println("todo: tests");
 		System.out.println("todo: Kommentare/Dokumentation!!!");
-		System.out.println("todo - sobald alles andere läuft: lösche thread counter aus der Main und den anderen Objekten");
-		System.out.println("todo - Beim Testen aufpassen, dass beide Bilder vorhanden sind. Wenn parra, muss sequentiel erzeugt werden und"
-				+ "umgekehrt");
-		System.out.println("todo - Klassendiagramm und Anwenderdoku");
+		System.out.println(
+				"todo - sobald alles andere läuft: lösche thread counter aus der Main und den anderen Objekten");
+		System.out.println(
+				"todo - Beim Testen aufpassen, dass beide Bilder vorhanden sind. Wenn parra, muss sequentiel erzeugt werden und"
+						+ " umgekehrt -- mit Befehl \"testMe\" können alle Modi getestet werden");
+		System.out.println("todo - Klassendiagramm");
 		System.out.println("todo - Anwenderdoku");
+		System.out.println("todo - Catch IOException -> soll nicht auf die Nase fliegen, nur wenn eine Datei fehlt.."
+				+ " also gebe ein Text aus und bleibe in der Whileschleife");
 
 		boolean quit = false;
 		boolean seqPara;
@@ -42,14 +45,14 @@ public class myMain {
 			input = inputReader.nextLine();
 
 			if (input.equals("1")) {
-				
+
 				System.out.println("FloydSteinberg sequenziell:");
 				System.out.print("Auswahl Modus:");
-				
+
 				input = inputReader.nextLine();
 				mode = Integer.parseInt(input);
 				seqPara = false;
-				startFlodySteinberg(seqPara, 0, mode);
+				Helper.startFlodySteinberg(seqPara, 0, mode);
 
 			} else if (input.equals("2")) {
 				// Nachfragen nach Matrix und Thread Anzahl
@@ -64,7 +67,7 @@ public class myMain {
 				mode = Integer.parseInt(input);
 
 				seqPara = true;
-				startFlodySteinberg(seqPara, thread, mode);
+				Helper.startFlodySteinberg(seqPara, thread, mode);
 
 			} else if (input.equals("3")) {
 				createGrayScalePics();
@@ -72,9 +75,16 @@ public class myMain {
 			} else if (input.equals("exit")) {
 				inputReader.close();
 				quit = true;
+			} else if (input.equals("testMe")) {
+				Helper.startFlodySteinberg(false, 0, 0);
+				Helper.startFlodySteinberg(false, 0, 1);
+				Helper.startFlodySteinberg(false, 0, 2);
+				Helper.startFlodySteinberg(true, Runtime.getRuntime().availableProcessors(), 0);
+				Helper.startFlodySteinberg(true, Runtime.getRuntime().availableProcessors(), 1);
+				Helper.startFlodySteinberg(true, Runtime.getRuntime().availableProcessors(), 2);
+				Helper.compareParaWithSec();
 			}
 		}
-
 	}
 
 	/**
@@ -145,8 +155,10 @@ public class myMain {
 	}
 
 	/**
-	 * Gray Scale ColorConvert Option zum Testen verschiedener Grayscale Methoden
-	 * http://codehustler.org/blog/java-to-create-grayscale-images-icons/ 
+	 * Gray Scale ColorConvert Option zum Testen verschiedener Grayscale
+	 * Methoden
+	 * http://codehustler.org/blog/java-to-create-grayscale-images-icons/
+	 * 
 	 * @param img
 	 * @return Grayscale Bild
 	 */
@@ -157,103 +169,4 @@ public class myMain {
 
 		return image;
 	}
-
-	/**
-	 * Methode für den Floy-Steinberg Algorithmus Bei der Übergabe wird
-	 * entschieden ob es die Methode sequentiell oder Parallel ausgeführt werden
-	 * soll Mit wie vielen Thread die Parallelmethode gestartet wird und in
-	 * welchem Matrix Modus.
-	 * 
-	 * @param seqPara
-	 * @param thread
-	 * @param mode
-	 * @throws IOException
-	 */
-	public static void startFlodySteinberg(boolean seqPara, int thread, int mode) throws IOException {
-
-		final String PATH = "src/main/resources/";
-		final String SOURCE = "example.jpg";
-		final String RESULTTYPE = "png";
-
-		String dstName = null;
-
-		final int processors = Runtime.getRuntime().availableProcessors();
-		boolean parallel = seqPara;
-		int threadQuantity = thread;
-
-		BufferedImage image = ImageIO.read(new File(PATH + SOURCE));
-		final int imageWidth = image.getWidth();
-		final int imageHeight = image.getHeight();
-
-		BufferedImage newImage = null;
-
-		int threshold = 128;
-		matrix myMatrix = null;
-
-		switch (mode) {
-		case (0):
-			myMatrix = new matrix(new int[][] { { 0, 0, 7 }, { 3, 5, 1 } }, threshold);
-			break;
-		case (1):
-			myMatrix = new matrix(new int[][] { { 0, 0, 4, 1}, { 1, 4, 1, 1 }, { 2, 1, 2, 3 } }, threshold);
-			break;
-		case (2):
-			myMatrix = new matrix(new int[][] { { 0, 0, 0, 8, 4 }, { 2, 4, 8, 4, 2 }, { 1, 2, 4, 2, 1 } }, threshold);
-			break;
-		default:
-			myMatrix = new matrix(new int[][] { { 0, 0, 7 }, { 3, 5, 1 } }, threshold);
-			break;
-		}
-
-		System.out.println(
-				Integer.toString(processors) + " processor" + (processors != 1 ? "s are " : " is ") + "available");
-		System.out.println("parallel: " + parallel);
-		System.out.println("Threshold is " + myMatrix.threshold);
-		System.out.println("Matrix-X-pos is " + myMatrix.start + " from left");
-		System.out.println("Source image: " + PATH + SOURCE);
-		System.out.println("imageWidth: " + imageWidth);
-		System.out.println("imageHeight: " + imageHeight);
-
-		final long startTime = System.currentTimeMillis();
-
-		try {
-			// maxThreads zur Info, kann (soll!) spÃ¤ter gelÃ¶scht werden - auch
-			// in den Objekten fuer die Paralelleverarveitung
-			int maxThreads = 0;
-			if (parallel) {
-
-				ForkJoinPool pool = new ForkJoinPool(threadQuantity);
-				for (int x = 0; x < Math.max(imageHeight, imageWidth * 10); x++) {
-					CalculateDiagonal fb = new CalculateDiagonal(image, myMatrix, x, 0, maxThreads);
-					pool.invoke(fb);
-				}
-				dstName = mode + "_example_para." + RESULTTYPE;
-				newImage = image;
-			} else {
-				for (int x = 0; x < Math.max(imageHeight, imageWidth * 10); x++) {
-					newImage = new FirstPixelOfDiagonal(image, myMatrix, x, 0).getDiagonalAndWork();
-				}
-
-				dstName = mode + "_example_sec." + RESULTTYPE;
-			}
-			if (maxThreads < java.lang.Thread.activeCount())
-				maxThreads = java.lang.Thread.activeCount();
-			System.out.println("active threads (inkl. Main): " + maxThreads);
-		} catch (Exception e) {
-			System.out.println(" in main:");
-			System.out.println(e.getMessage());
-		}
-
-		final long endTime = System.currentTimeMillis();
-
-		ImageIO.write(newImage, RESULTTYPE, new File(PATH + dstName));
-
-		System.out.println("Process took " + (endTime - startTime) + " milliseconds.");
-		System.out.println("Output image: " + dstName);
-
-		// compare sequential and parallel results
-		helper.compareParaWithSec(PATH + mode + "_example_para." + RESULTTYPE,
-				PATH + mode + "_example_sec." + RESULTTYPE);
-	}
-
 }
