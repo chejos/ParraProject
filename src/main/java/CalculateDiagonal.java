@@ -30,7 +30,7 @@ public class CalculateDiagonal extends RecursiveAction {
 			if(workingX < imageWidth)
 				tasks.add(new CalculatePixel(sourceImg, myMatrix, workingX, workingY, maxThreads));
 			workingY = (workingY + 1);
-			workingX = workingX - (myMatrix.start + 2);
+			workingX = workingX - (myMatrix.start + 6);
 			if (maxThreads < java.lang.Thread.activeCount())
 				maxThreads = java.lang.Thread.activeCount();
 		}

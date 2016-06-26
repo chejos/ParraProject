@@ -39,9 +39,11 @@ public class CalculatePixel extends RecursiveAction {
 				for (int xMatrix = (yWokringPixel == 0) ? myMatrix.start
 						: 0; xMatrix < myMatrix.errorDistribution[yMatrix].length; xMatrix++) {
 					int xWorkingPixel = xMatrix - myMatrix.start + workingX;
-					if (xWorkingPixel >= 0 && xWorkingPixel < imageWidth) {
-						helper.workOnImage(myMatrix, yMatrix, xMatrix, sourceImg, xWorkingPixel, yWokringPixel,
-								grayLevelOldPixel);
+					if (myMatrix.errorDistribution[yMatrix][xMatrix] != 0) {						
+						if (xWorkingPixel >= 0 && xWorkingPixel < imageWidth) {
+							helper.workOnImage(myMatrix, yMatrix, xMatrix, sourceImg, xWorkingPixel, yWokringPixel,
+									grayLevelOldPixel);
+						}
 					}
 				}
 			}

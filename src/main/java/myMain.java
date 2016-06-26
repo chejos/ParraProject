@@ -21,48 +21,58 @@ public class myMain {
 		System.out.println("todo: tests");
 		System.out.println("todo: Kommentare/Dokumentation!!!");
 		System.out.println("todo - sobald alles andere läuft: lösche thread counter aus der Main und den anderen Objekten");
-		System.out.println("todo - Überprüft nochmal die Matrix!!!!!!!!!!!!!!!!!!!!!!!!!!!! Meine bei mir gehen nicht alle");
+		System.out.println("todo - Beim Testen aufpassen, dass beide Bilder vorhanden sind. Wenn parra, muss sequentiel erzeugt werden und"
+				+ "umgekehrt");
+		System.out.println("todo - Klassendiagramm und Anwenderdoku");
+		System.out.println("todo - Anwenderdoku");
 
 		boolean quit = false;
 		boolean seqPara;
 		Scanner inputReader = new Scanner(System.in);
 		String input = null;
+		int mode = 0;
 
 		while (!quit) {
-			System.out.println("Bitte Verfahren wählen:");
+			System.out.println("\n Bitte Verfahren wählen:");
 			System.out.println("1: FloydSteinberg algorithmus sequenziell");
 			System.out.println("2: FloydSteinberg algorithmus parallel");
 			System.out.println(
 					"3: Verschiedene Test Bilder \n Verfahren: GrayScale, GrayScale mit ColorConverter, BinaryPicture, Ordered Dither ");
+			System.out.print("Eingabe: ");
 			input = inputReader.nextLine();
 
 			if (input.equals("1")) {
+				
+				System.out.println("FloydSteinberg sequenziell:");
+				System.out.print("Auswahl Modus:");
+				
 				input = inputReader.nextLine();
+				mode = Integer.parseInt(input);
 				seqPara = false;
-				startFloySteinberg(seqPara, 0, 0);
+				startFlodySteinberg(seqPara, 0, mode);
 
 			} else if (input.equals("2")) {
-				// Nachfragen nach Methoden
-				int mode = 0;
+				// Nachfragen nach Matrix und Thread Anzahl
 				int thread = 0;
-				System.out.println("Anzahl Threads angeben:");
+				System.out.println("FloydSteinberg parallel:");
+				System.out.print("Anzahl Threads angeben:");
 				input = inputReader.nextLine();
 				thread = Integer.parseInt(input);
 
-				System.out.println("Auswahl Modus:");
+				System.out.print("Auswahl Modus:");
 				input = inputReader.nextLine();
 				mode = Integer.parseInt(input);
 
 				seqPara = true;
-				startFloySteinberg(seqPara, thread, mode);
+				startFlodySteinberg(seqPara, thread, mode);
 
 			} else if (input.equals("3")) {
 				createGrayScalePics();
 
-			} else if (input.equals("exit"))
+			} else if (input.equals("exit")) {
 				inputReader.close();
-			quit = true;
-
+				quit = true;
+			}
 		}
 
 	}
@@ -135,10 +145,8 @@ public class myMain {
 	}
 
 	/**
-	 * Gray Scale ColorConvert Option zum Testen verschiedener Grayscale
-	 * Methoden
-	 * http://codehustler.org/blog/java-to-create-grayscale-images-icons/
-	 * 
+	 * Gray Scale ColorConvert Option zum Testen verschiedener Grayscale Methoden
+	 * http://codehustler.org/blog/java-to-create-grayscale-images-icons/ 
 	 * @param img
 	 * @return Grayscale Bild
 	 */
@@ -161,7 +169,7 @@ public class myMain {
 	 * @param mode
 	 * @throws IOException
 	 */
-	public static void startFloySteinberg(boolean seqPara, int thread, int mode) throws IOException {
+	public static void startFlodySteinberg(boolean seqPara, int thread, int mode) throws IOException {
 
 		final String PATH = "src/main/resources/";
 		final String SOURCE = "example.jpg";
@@ -171,7 +179,7 @@ public class myMain {
 
 		final int processors = Runtime.getRuntime().availableProcessors();
 		boolean parallel = seqPara;
-		int threadQuantity = 4;
+		int threadQuantity = thread;
 
 		BufferedImage image = ImageIO.read(new File(PATH + SOURCE));
 		final int imageWidth = image.getWidth();
@@ -183,14 +191,14 @@ public class myMain {
 		matrix myMatrix = null;
 
 		switch (mode) {
+		case (0):
+			myMatrix = new matrix(new int[][] { { 0, 0, 7 }, { 3, 5, 1 } }, threshold);
+			break;
 		case (1):
-			myMatrix = new matrix(new int[][] { { 0, 0, 4, 1 }, { 1, 4, 1, 0 }, { 0, 1, 0, 0 } }, threshold);
+			myMatrix = new matrix(new int[][] { { 0, 0, 4, 1}, { 1, 4, 1, 1 }, { 2, 1, 2, 3 } }, threshold);
 			break;
 		case (2):
 			myMatrix = new matrix(new int[][] { { 0, 0, 0, 8, 4 }, { 2, 4, 8, 4, 2 }, { 1, 2, 4, 2, 1 } }, threshold);
-			break;
-		case (3):
-			System.out.println("toDo");
 			break;
 		default:
 			myMatrix = new matrix(new int[][] { { 0, 0, 7 }, { 3, 5, 1 } }, threshold);
@@ -215,14 +223,14 @@ public class myMain {
 			if (parallel) {
 
 				ForkJoinPool pool = new ForkJoinPool(threadQuantity);
-				for (int x = 0; x < Math.max(imageHeight, imageWidth * 4); x++) {
+				for (int x = 0; x < Math.max(imageHeight, imageWidth * 10); x++) {
 					CalculateDiagonal fb = new CalculateDiagonal(image, myMatrix, x, 0, maxThreads);
 					pool.invoke(fb);
 				}
 				dstName = mode + "_example_para." + RESULTTYPE;
 				newImage = image;
 			} else {
-				for (int x = 0; x < Math.max(imageHeight, imageWidth * 4); x++) {
+				for (int x = 0; x < Math.max(imageHeight, imageWidth * 10); x++) {
 					newImage = new FirstPixelOfDiagonal(image, myMatrix, x, 0).getDiagonalAndWork();
 				}
 
@@ -232,7 +240,7 @@ public class myMain {
 				maxThreads = java.lang.Thread.activeCount();
 			System.out.println("active threads (inkl. Main): " + maxThreads);
 		} catch (Exception e) {
-			System.out.println("Error in main:");
+			System.out.println(" in main:");
 			System.out.println(e.getMessage());
 		}
 
